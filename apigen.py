@@ -3,6 +3,7 @@ import json, time
 import requests
 import json
 import pandas as pd
+import random
 
 
 app= Flask(__name__)
@@ -21,6 +22,36 @@ def fixture():
     resp={'prev':prev,'upcoming':upcoming}
     return resp
 
+def news():
+    url = ('https://newsapi.org/v2/everything?'
+       'q=Manchester United&'
+       'from=2023-02-01&'
+       'sortBy=popularity&'
+       'apiKey=88e48120bf2d439db0e9dea9a8975aca')
+    count=20
+    response = requests.get(url)
+    r=response.json()
+    title=[]
+    url=[]
+    for x in r['articles']:
+        if(('Manchester United' or'Man United' or 'Man Utd' or 'Man U') in x['description']):
+            title.append(x['title'])
+            url.append(x['url'])
+            count-=1
+            if(count==0):
+                break
+    randomlist = random.sample(range(0, 10), 3)
+    temp={}
+    resp={}
+    c=0
+    for x in randomlist:
+        temp["title"]=title[x]
+        temp["url"]=url[x]
+        resp[c]=temp
+        c+=1
+        temp={}
+    return resp
+
 def standings():
     df = pd.read_csv("standings.csv")
     currentyear='2021-22'
@@ -35,6 +66,12 @@ def standings():
 @app.route('/fixtures',methods=['GET'])
 def fixture_page():
     data_set=fixture()
+    json_dump=json.dumps(data_set)
+    return json_dump
+
+@app.route('/news',methods=['GET'])
+def news_page():
+    data_set=news()
     json_dump=json.dumps(data_set)
     return json_dump
 
