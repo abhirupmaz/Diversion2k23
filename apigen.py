@@ -4,14 +4,14 @@ import requests
 import json
 import pandas as pd
 import random
-
+import goal
 
 app= Flask(__name__)
 
 def fixture():
     url='https://fixturedownload.com/feed/json/epl-2022'
     response = requests.get(url)
-    currentmatchday=28
+    currentmatchday=15
     r=response.json()
     for x in r:
         if x['HomeTeam'] == 'Man Utd' or x['AwayTeam'] == 'Man Utd':
@@ -63,6 +63,10 @@ def standings():
     return parsed
     # print(parsed)
 
+def predictions():
+    data_set=goal.PredictScore()
+    return data_set
+
 @app.route('/fixtures',methods=['GET'])
 def fixture_page():
     data_set=fixture()
@@ -79,6 +83,12 @@ def news_page():
 def standings_page():
     data_set=standings()
     return data_set
+
+@app.route('/predictions',methods=['GET'])
+def predictions_page():
+    data_set=predictions()
+    json_dump=json.dumps(data_set)
+    return json_dump
 
 @app.route('/team/',methods=['GET'])
 def team_page():
